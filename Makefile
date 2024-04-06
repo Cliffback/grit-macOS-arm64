@@ -1,48 +1,50 @@
-GRIT_VERSION	:=	0.8.6
-GRIT_BUILD	:=	20100317
+GRIT_VERSION    :=  0.8.6
+GRIT_BUILD      :=  20100317
 
-CXXFLAGS	:=	-Icldib -Ilibgrit -Iextlib -stdlib=libc++
-CXXFLAGS	+=	-DGRIT_VERSION=\"$(GRIT_VERSION)\" -DGRIT_BUILD=\"$(GRIT_BUILD)\"
-LDFLAGS		:=
+CXX             :=  clang # Using g++ for compiling
+LD              :=  clang++ # Using g++ for linking
+
+CXXFLAGS        :=  -Icldib -Ilibgrit -Iextlib -stdlib=libc++
+CXXFLAGS        +=  -DGRIT_VERSION=\"$(GRIT_VERSION)\" -DGRIT_BUILD=\"$(GRIT_BUILD)\"
+LDFLAGS         :=
 
 # ---------------------------------------------------------------------
 # Platform specific stuff
 # ---------------------------------------------------------------------
 
-UNAME	:=	$(shell uname -s)
+UNAME   :=  $(shell uname -s)
 
 ifneq (,$(findstring MINGW,$(UNAME)))
-	PLATFORM	:= win32
-	EXEEXT		:= .exe
-	CFLAGS		+= -mno-cygwin
-	LDFLAGS		+= -mno-cygwin -s
-	OS	:=	win32
-	EXTRAINSTALL	:=	extlib/FreeImage.dll
+    PLATFORM    := win32
+    EXEEXT      := .exe
+    CFLAGS      += -mno-cygwin
+    LDFLAGS     += -mno-cygwin -s
+    OS  := win32
+    EXTRAINSTALL    := extlib/FreeImage.dll
 endif
 
 ifneq (,$(findstring CYGWIN,$(UNAME)))
-	CFLAGS		+= -mno-cygwin
-	LDFLAGS		+= -mno-cygwin -s
-	EXEEXT		:= .exe
-	OS	:=	win32
-	EXTRAINSTALL	:=	extlib/FreeImage.dll
+    CFLAGS      += -mno-cygwin
+    LDFLAGS     += -mno-cygwin -s
+    EXEEXT      := .exe
+    OS := win32
+    EXTRAINSTALL    := extlib/FreeImage.dll
 endif
 
 ifneq (,$(findstring Darwin,$(UNAME)))
-	SDK	:=	/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk
-	OSXCFLAGS	:= -mmacosx-version-min=10.15 -isysroot $(SDK) -arch x86_64
-	OSXCXXFLAGS	:=	$(OSXCFLAGS)
-	CXXFLAGS	+=	-fvisibility=hidden
-	LDFLAGS		+= -mmacosx-version-min=10.15 -Wl,-syslibroot,$(SDK) -arch x86_64
+    SDK := /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk # Adjust the SDK path accordingly
+    OSXCFLAGS   := -mmacosx-version-min=11.0 -isysroot $(SDK) -arch arm64 # Added ARM and x86_64 archs
+    OSXCXXFLAGS :=  $(OSXCFLAGS)
+    CXXFLAGS    +=  -fvisibility=hidden
+    LDFLAGS     += -mmacosx-version-min=11.0 -Wl,-syslibroot,$(SDK) -arch arm64 # Added ARM and x86_64 archs
 endif
 
 ifneq (,$(findstring Linux,$(UNAME)))
-	LDFLAGS += -s -static
-	OS := Linux
+    LDFLAGS += -s -static
+    OS := Linux
 endif
 
-
-TARGET	:=	grit$(EXEEXT)
+TARGET  :=  grit$(EXEEXT)
 
 # ---------------------------------------------------------------------
 # Library directories
@@ -50,62 +52,62 @@ TARGET	:=	grit$(EXEEXT)
 
 # === cldib ===
 
-CLDIB_DIR	:=	cldib
-LIBCLDIB	:=	libcldib.a
+CLDIB_DIR   :=  cldib
+LIBCLDIB    :=  libcldib.a
 
-LIBCLDIB_SRC	:=				\
-			cldib_adjust.cpp	\
-			cldib_conv.cpp		\
-			cldib_core.cpp		\
-			cldib_tmap.cpp		\
-			cldib_tools.cpp		\
-			cldib_wu.cpp
+LIBCLDIB_SRC    :=                \
+            cldib_adjust.cpp    \
+            cldib_conv.cpp      \
+            cldib_core.cpp      \
+            cldib_tmap.cpp     \
+            cldib_tools.cpp    \
+            cldib_wu.cpp
 
-LIBCLDIB_OBJ	:=	$(addprefix build/, $(LIBCLDIB_SRC:.cpp=.o))
+LIBCLDIB_OBJ    :=  $(addprefix build/, $(LIBCLDIB_SRC:.cpp=.o))
 
 # === libgrit ===
 
-LIBGRIT_DIR	:=	libgrit
-LIBGRIT		:=	libgrit.a
+LIBGRIT_DIR :=  libgrit
+LIBGRIT     :=  libgrit.a
 
-LIBGRIT_SRC	:=				\
-			cprs.cpp		\
-			cprs_huff.cpp	\
-			cprs_lz.cpp		\
-			cprs_rle.cpp	\
-			grit_core.cpp	\
-			grit_misc.cpp	\
-			grit_prep.cpp	\
-			grit_shared.cpp	\
-			grit_xp.cpp		\
-			logger.cpp		\
-			pathfun.cpp
+LIBGRIT_SRC :=                \
+            cprs.cpp        \
+            cprs_huff.cpp   \
+            cprs_lz.cpp     \
+            cprs_rle.cpp    \
+            grit_core.cpp   \
+            grit_misc.cpp   \
+            grit_prep.cpp   \
+            grit_shared.cpp \
+            grit_xp.cpp     \
+            logger.cpp      \
+            pathfun.cpp
 
-LIBGRIT_OBJ	:=	$(addprefix build/, $(LIBGRIT_SRC:.cpp=.o))
+LIBGRIT_OBJ :=  $(addprefix build/, $(LIBGRIT_SRC:.cpp=.o))
 
 # === External/shared library stuff ===
 
-EXTLIB_DIR	:= extlib
+EXTLIB_DIR  := extlib
 
 # === Grit ===
 
-GRIT_DIR	:=	srcgrit
-GRIT_SRC	:=	grit_main.cpp cli.cpp fi.cpp
-GRIT_OBJ	:=	$(addprefix build/, $(GRIT_SRC:.cpp=.o))
+GRIT_DIR    :=  srcgrit
+GRIT_SRC    :=  grit_main.cpp cli.cpp fi.cpp
+GRIT_OBJ    :=  $(addprefix build/, $(GRIT_SRC:.cpp=.o))
 
-DEPENDS		:=	$(GRIT_OBJ:.o=.d) $(LIBCLDIB_OBJ:.o=.d) $(LIBGRIT_OBJ:.o=.d)
+DEPENDS     :=  $(GRIT_OBJ:.o=.d) $(LIBCLDIB_OBJ:.o=.d) $(LIBGRIT_OBJ:.o=.d)
 
 # ---------------------------------------------------------------------
 
-SRCDIRS	:= $(CLDIB_DIR) $(LIBGRIT_DIR) $(GRIT_DIR) $(EXTLIB_DIR)
-INCDIRS	:= $(CLDIB_DIR) $(LIBGRIT_DIR) $(EXTLIB_DIR)
-LIBDIRS	:= . /usr/local/lib
+SRCDIRS := $(CLDIB_DIR) $(LIBGRIT_DIR) $(GRIT_DIR) $(EXTLIB_DIR)
+INCDIRS := $(CLDIB_DIR) $(LIBGRIT_DIR) $(EXTLIB_DIR)
+LIBDIRS := . /usr/local/lib ./FreeImage
 
-INCLUDE		:= $(foreach dir, $(INCDIRS), -I$(dir))
-LIBPATHS	:= $(foreach dir, $(LIBDIRS), -L$(dir))
-VPATH		:= $(foreach dir, $(SRCDIRS), $(dir))
+INCLUDE     := $(foreach dir, $(INCDIRS), -I$(dir))
+LIBPATHS    := $(foreach dir, $(LIBDIRS), -L$(dir))
+VPATH       := $(foreach dir, $(SRCDIRS), $(dir))
 
-CPPFLAGS	+= $(INCLUDE) -stdlib=libc++
+CPPFLAGS    += $(INCLUDE) -stdlib=libc++ -DPNG_ARM_NEON_OPT=0
 
 # ---------------------------------------------------------------------
 # Build rules
@@ -114,23 +116,22 @@ CPPFLAGS	+= $(INCLUDE) -stdlib=libc++
 .PHONY:
 	all clean pre
 
-all:	build $(TARGET)
+all:    build $(TARGET)
 
 # make grit_main.o dependent on makefile for version number
 build/grit_main.o : Makefile
 
-$(LIBCLDIB)	:	$(LIBCLDIB_OBJ)
+$(LIBCLDIB) :   $(LIBCLDIB_OBJ)
 
-$(LIBGRIT)	:	$(LIBGRIT_OBJ)
+$(LIBGRIT)  :   $(LIBGRIT_OBJ)
 
-$(TARGET)	:	$(LIBCLDIB) $(LIBGRIT) $(GRIT_OBJ)
-	$(CXX) $(LDFLAGS) -o $@ $(GRIT_OBJ) $(LIBPATHS) -lgrit -lcldib -lfreeimage
-
+$(TARGET)   :   $(LIBCLDIB) $(LIBGRIT) $(GRIT_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $(GRIT_OBJ) $(LIBPATHS) -lgrit -lcldib -lfreeimage
 
 build:
 	@[ -d $@ ] || mkdir -p $@
 
-clean	:
+clean   :
 	rm -fr $(TARGET) build $(LIBGRIT) $(LIBCLDIB) *.bz2
 
 install:
@@ -144,12 +145,13 @@ dist-bin: all
 
 dist: dist-src dist-bin
 
-build/%.o	:	%.cpp
+build/%.o  :   %.cpp
 	$(CXX) -E -MMD -MF build/$(*).d $(CXXFLAGS) $< > /dev/null
 	$(CXX) $(OSXCXXFLAGS) $(CXXFLAGS) -o $@ -c $<
 
-%.a	:
+%.a :
 	rm -f $@
 	ar rcs $@ $^
 
 -include $(DEPENDS)
+
