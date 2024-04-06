@@ -1,4 +1,9 @@
-//
+## DISCLAIMER
+
+I just needed a arm64 binary of grit, so did this is probably a bit messy and is in no way intended as production code, but it gave me the binary. Take it for what it's worth. See the compiled file in the releases section.
+
+## Grit
+
 // (win)grit source code, v0.8.1
 // (20050313-20080512, cearn)
 
