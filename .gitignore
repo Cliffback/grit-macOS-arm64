@@ -3,3 +3,4 @@
 libgrit.a
 libcldib.a
 *.bz2
+.DS_Store
